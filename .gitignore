@@ -1,0 +1,23 @@
+# TEMPLATE: this contains common patterns for projects that use IREE but is not
+# required and can be replaced with a user-provided .gitignore.
+
+# CMake artifacts
+build/
+build-*/
+
+# Local-only config options
+version_info.json
+CMakeUserPresets.json
+
+# Visual Studio files
+.env
+.vs/
+.vscode/
+*.sdf
+*.opensdf
+*.VC.opendb
+*.suo
+*.user
+
+# macOS files
+.DS_Store

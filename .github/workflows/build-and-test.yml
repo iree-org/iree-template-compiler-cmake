@@ -1,0 +1,60 @@
+# Licensed under the Apache License v2.0 with LLVM Exceptions.
+# See https://llvm.org/LICENSE.txt for license information.
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+name: IREE Compiler Template
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build and Test
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install cmake clang ninja-build
+    - name: Install release IREE compiler and runtime
+      run: |
+        python -m pip install -f https://github.com/openxla/iree/releases iree-compiler iree-runtime
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    - name: Initialize submodules
+      run : |
+        git \
+            -c submodule."third_party/llvm-project".update=none \
+            submodule update --init --recursive
+    - name: Build custom tools
+      run: |
+        cd $GITHUB_WORKSPACE
+        mkdir build && cd build
+        cmake .. \
+          -GNinja \
+          -DCMAKE_C_COMPILER=clang-10 \
+          -DCMAKE_CXX_COMPILER=clang++-10
+        cmake --build . --target my-iree-opt
+    - name: Compile sample module
+      run: |
+        cd $GITHUB_WORKSPACE
+        iree-compile \
+          --iree-hal-target-backends=llvm-cpu \
+          --iree-hal-preprocess-executables-with="my-iree-opt --my-codegen-preprocessor-pipeline"
+          tests/simple_mul.mlir \
+          -o tests/simple_mul.vmfb
+    - name: Test execution
+      run: |
+        cd $GITHUB_WORKSPACE
+        iree-run-module \
+          --device=local-sync \
+          --module=./build/tests/simple_mul.vmfb \
+          --function=simple_mul \
+          --input=4xf32=8 \
+          --input=4xf32=2 \
+          --expected_output=4xf32=16

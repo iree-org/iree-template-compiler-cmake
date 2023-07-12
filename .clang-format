@@ -1,0 +1,6 @@
+# TEMPLATE: IREE's runtime follows Google style while its compiler follows
+# mostly LLVM style (for naming/etc) but using Google formatting.
+#
+# Users can either inherit this style or override with their own but pinning
+# this keeps the sample code consistent with the IREE runtime code it's using.
+BasedOnStyle: Google
