@@ -1,6 +1,22 @@
-# TEMPLATE: IREE's runtime follows Google style while its compiler follows
-# mostly LLVM style (for naming/etc) but using Google formatting.
+# TEMPLATE: IREE's runtime follows Google style while its compiler follows the
+# LLVM/MLIR variable naming and formatting style. The only difference
+# compared to the MLIR style in the compiler code is more general include
+# ordering.
 #
 # Users can either inherit this style or override with their own but pinning
-# this keeps the sample code consistent with the IREE runtime code it's using.
-BasedOnStyle: Google
+# this keeps the sample code consistent with the IREE compiler code it's using.
+BasedOnStyle: LLVM
+AlwaysBreakTemplateDeclarations: Yes
+IncludeCategories:
+  - Regex:           '^<.*\.h>'
+    Priority:        1
+    SortPriority:    0
+    CaseSensitive:   false
+  - Regex:           '^<.*'
+    Priority:        2
+    SortPriority:    0
+    CaseSensitive:   false
+  - Regex:           '.*'
+    Priority:        3
+    SortPriority:    0
+    CaseSensitive:   false
