@@ -21,40 +21,22 @@ jobs:
       run: |
         sudo apt update
         sudo apt install cmake clang ninja-build
-    - name: Install release IREE compiler and runtime
+    - name: Install prerelease IREE compiler
       run: |
-        python -m pip install -f iree-compiler iree-runtime
+        python3 -m pip install iree-compiler \
+          --find-links https://openxla.github.io/iree/pip-release-links.html
     - name: Checkout repository
-      uses: actions/checkout@v2
-    - name: Initialize submodules
-      run : |
-        git \
-            -c submodule."third_party/llvm-project".update=none \
-            submodule update --init --recursive
-    - name: Build custom tools
+      uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
+      with:
+        submodules: recursive
+    - name: Build custom compiler tool
       run: |
-        cd $GITHUB_WORKSPACE
-        mkdir build && cd build
-        cmake .. \
-          -GNinja \
+        cmake -B build/ -G Ninja . \
           -DCMAKE_C_COMPILER=clang-10 \
           -DCMAKE_CXX_COMPILER=clang++-10
-        cmake --build . --target my-iree-opt
-    - name: Compile sample module
+        cmake --build build/ --target hello-compiler
+    - name: Run custom compiler tool
       run: |
-        cd $GITHUB_WORKSPACE
-        iree-compile \
-          --iree-hal-target-backends=llvm-cpu \
-          --iree-hal-preprocess-executables-with="my-iree-opt --my-codegen-preprocessor-pipeline"
-          tests/simple_mul.mlir \
-          -o tests/simple_mul.vmfb
-    - name: Test execution
-      run: |
-        cd $GITHUB_WORKSPACE
-        iree-run-module \
-          --device=local-sync \
-          --module=./build/tests/simple_mul.vmfb \
-          --function=simple_mul \
-          --input=4xf32=8 \
-          --input=4xf32=2 \
-          --expected_output=4xf32=16
+        COMPILER_PATH=$(python -c "import iree.compiler as _; print(_.__path__[0])")
+        ./build/hello_compiler/hello-compiler \
+          $COMPILER_PATH/_mlir_libs/libIREECompiler.so

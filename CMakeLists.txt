@@ -16,21 +16,21 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 #-------------------------------------------------------------------------------
 # IREE subproject configuration
 #-------------------------------------------------------------------------------
-# IREE is a toolkit and has many optional features and build tuning parameters
-# that will differ for everyone integrating it. This extends from big knobs
-# like which HAL backends to support (CUDA, Vulkan, CPU single-threaded,
-# CPU multi-threaded, etc) and to small knobs like whether to preserve
-# iree_status_t failure messages (and the associated string manipulation code)
-# or treat them like integers for code size reduction.
 
-# Disable building the IREE compiler and test files.
-# Compiler builds pull in the LLVM build and make cross-compiling difficult.
-# It's recommended that the IREE packages are installed from pip or the compiler
-# is built from source from the main IREE repository and installed for use by
-# the subprojects involving the runtime. The main IREE repository compiles
-# models as part of its build process but for most user workflows compilation
-# can be handled much better by scripts and frontend integrations.
+# Enable building the IREE compiler.
+#
+# Projects depending on the compiler need three main components:
+#   1. Compiler API header files from `iree/compiler/bindings/c/iree/compiler/`
+#   2. The compiler shared library loader
+#       - From CMake, link against `iree_compiler_bindings_c_loader`
+#       - Or build `iree/compiler/bindings/c/iree/compiler/loader/` using the
+#         toolchain of your choosing (no dependencies, reasonable to just fork)
+#   3. The compiler shared library (libIREECompiler.so / IREECompiler.dll)
+#       - This can be built from source with CMake
+#       - This can also be installed from a release (such as a Python wheel)
 set(IREE_BUILD_COMPILER ON)
+
+# Disable optional IREE components.
 set(IREE_BUILD_TESTS OFF)
 set(IREE_BUILD_SAMPLES OFF)
 
@@ -41,3 +41,9 @@ set(IREE_BUILD_SAMPLES OFF)
 # CMake target listing by default - for most users this is fine but if deeply
 # integrating it can be useful to drop it.
 add_subdirectory(third_party/iree EXCLUDE_FROM_ALL)
+
+#-------------------------------------------------------------------------------
+# Application
+#-------------------------------------------------------------------------------
+
+add_subdirectory(hello_compiler)
