@@ -32,6 +32,7 @@ jobs:
     - name: Build custom compiler tool
       run: |
         cmake -B build/ -G Ninja . \
+          -DCMAKE_BUILD_TYPE=RelWithDebInfo \
           -DCMAKE_C_COMPILER=clang-10 \
           -DCMAKE_CXX_COMPILER=clang++-10
         cmake --build build/ --target hello-compiler
