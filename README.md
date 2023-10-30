@@ -1,6 +1,7 @@
 # IREE Compiler Hello World with CMake
 
-![Build with Latest IREE Release](https://github.com/iree-org/iree-template-compiler-cmake/workflows/IREE%20Compiler%20Template/badge.svg)
+[![Build with Latest IREE Release](https://github.com/iree-org/iree-template-compiler-cmake/actions/workflows/build-and-test.yml/badge.svg?query=branch%3Amain+event%3Apush)](https://github.com/iree-org/iree-template-compiler-cmake/actions/workflows/build-and-test.yml?query=branch%3Amain+event%3Apush)
+
 
 ## Instructions
 
@@ -33,7 +34,7 @@ compiler is composed (which optional components are enabled, using toolchain
 features like sanitizers, etc.).
 
 ```shell
-$ cmake -B build/ -G Ninja .
+$ cmake -B build/ -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo .
 $ cmake --build build/ --target iree-compile
 
 # Find the compiler shared object that the compiler binary uses.
@@ -69,7 +70,7 @@ iree-compile  libIREECompiler.so
 
 ```shell
 # Build with CMake.
-$ cmake -B build/ -G Ninja .
+$ cmake -B build/ -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo .
 $ cmake --build build/ --target hello-compiler
 
 # Run the sample.
