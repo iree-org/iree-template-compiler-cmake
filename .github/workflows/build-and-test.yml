@@ -9,8 +9,7 @@ on:
     branches:
       - main
   pull_request:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   build:
@@ -21,20 +20,22 @@ jobs:
       run: |
         sudo apt update
         sudo apt install cmake clang ninja-build
-    - name: Install prerelease IREE compiler
+        export CC=clang
+        export CXX=clang++
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+    - name: Install IREE compiler
       run: |
-        python3 -m pip install iree-compiler \
-          --find-links https://openxla.github.io/iree/pip-release-links.html
+        python3 -m pip install iree-compiler
     - name: Checkout repository
-      uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
+      uses: actions/checkout@v2
       with:
         submodules: recursive
     - name: Build custom compiler tool
       run: |
-        cmake -B build/ -G Ninja . \
-          -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-          -DCMAKE_C_COMPILER=clang-10 \
-          -DCMAKE_CXX_COMPILER=clang++-10
+        cmake -B build/ -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo .
         cmake --build build/ --target hello-compiler
     - name: Run custom compiler tool
       run: |
